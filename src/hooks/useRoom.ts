@@ -108,7 +108,7 @@ export const useRoom = () => {
     }
   }
 
-  const { sendMessage } = useWebsocket(`ws://${API_URI}/ws/${roomID}`, messageListener)
+  const { sendMessage } = useWebsocket(`wss://${API_URI}/ws/${roomID}`, messageListener)
 
 
   const handleRequestVideo = () => {
