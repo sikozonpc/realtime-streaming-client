@@ -4,7 +4,7 @@ import ReactPlayer from "react-player"
 import useWebsocket, { ActionType } from "hooks/useWebsocket"
 import { useParams } from "react-router"
 import axios from "axios"
-import { API_URI, API_URL } from "config"
+import { WS_URL, API_URL } from "config"
 
 
 const initialVideoData = {
@@ -37,7 +37,7 @@ export const useRoom = () => {
   }
 
   useEffect(() => {
-    (async () => getPlaylist())()
+    (async () => setTimeout(getPlaylist, 1000))()
   }, [])
 
   const seekVideo = (durationTime: number) => {
@@ -108,7 +108,7 @@ export const useRoom = () => {
     }
   }
 
-  const { sendMessage } = useWebsocket(`wss://${API_URI}/ws/${roomID}`, messageListener)
+  const { sendMessage } = useWebsocket(`${WS_URL}/ws/${roomID}`, messageListener)
 
 
   const handleRequestVideo = () => {
