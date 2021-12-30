@@ -28,7 +28,7 @@ const Playlist: React.FC<Props> = ({ videosUrls, className, ...rest }) => {
             url={v}
             light
             controls={false}
-            playIcon={() => <div/>}
+            playIcon={<div/>}
             height='100%'
             width='100%'
             playing={false}
