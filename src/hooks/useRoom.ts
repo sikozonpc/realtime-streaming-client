@@ -13,52 +13,50 @@ const initialVideoData = {
   playing: false,
 }
 
-
 export const useRoom = () => {
-  const playerRef = useRef<ReactPlayer | null>(null)
+  const playerRef = useRef<ReactPlayer | null>(null);
 
-  const [videoData, setVideoData] = useState<VideoData>(initialVideoData)
-  const [isMediaReady, setMediaReady] = useState(false)
-  const [videoUrl, setVideo] = useState("")
-  const [playlist, setPlaylist] = useState<string[]>([])
-  const stateRef = useRef<VideoData>()
+  const [videoData, setVideoData] = useState<VideoData>(initialVideoData);
+  const [isMediaReady, setMediaReady] = useState(false);
+  const [playlist, setPlaylist] = useState<string[]>([]);
+  const stateRef = useRef<VideoData>();
 
-  const { roomID } = useParams<{ roomID: string }>()
+  const { roomID } = useParams<{ roomID: string }>();
 
   // Hack to fix a callback react variable not updating https://stackoverflow.com/questions/57847594/react-hooks-accessing-up-to-date-state-from-within-a-callback
   stateRef.current = videoData;
 
   const getPlaylist = useCallback(async () => {
-    const { data } = await axios.get<string[]>(`${API_URL}/room/${roomID}/playlist`)
-    if (!data) return
+    const { data } = await axios.get<string[]>(`${API_URL}/room/${roomID}/playlist`);
+    if (!data) return;
 
-    setPlaylist(data)
+    setPlaylist(data);
   }, [roomID])
 
 
   useEffect(() => {
-    (async () => setTimeout(getPlaylist, 1000))()
+    (async () => setTimeout(getPlaylist, 1000))();
   }, [getPlaylist])
 
   const seekVideo = (durationTime: number) => {
     console.log('seeking to', durationTime);
     if (durationTime > 0 && playerRef?.current) {
-      playerRef.current.seekTo(durationTime, 'seconds')
-      return
+      playerRef.current.seekTo(durationTime, 'seconds');
+      return;
     }
 
     console.warn("Failed to seek", videoData)
   }
 
   const messageListener = (ev: MessageEvent) => {
-    const res = JSON.parse(ev.data)
-    console.log(JSON.parse(ev.data))
+    const res = JSON.parse(ev.data);
+    console.log(JSON.parse(ev.data));
 
-    const action: ActionType = res.action
+    const action: ActionType = res.action;
 
     if (!res || !action) {
-      console.warn("No action to handle")
-      return
+      console.warn("No action to handle");
+      return;
     }
 
     switch (action) {
@@ -108,18 +106,16 @@ export const useRoom = () => {
 
   const { sendMessage } = useWebsocket(`${WS_URL}/ws/${roomID}`, messageListener)
 
-  const handleRequestVideo = () => {
+  const handleRequestVideo = (url: string) => {
+    console.log('REQUESTED');
     sendMessage({
       action: ActionType.REQUEST,
-      data: {
-        url: videoUrl,
-      }
+      data: { url }
     })
 
+    // sets video to current playing, maybe this should be an event
     if (!videoData.url) {
-      setVideoData({
-        url: videoUrl,
-      })
+      setVideoData({ url })
     }
   }
 
@@ -183,7 +179,6 @@ export const useRoom = () => {
     isMediaReady,
     videoData,
     playerRef,
-    videoUrl,
     playlist,
 
     handleMediaEnd,
@@ -192,7 +187,6 @@ export const useRoom = () => {
     handlePause,
     handlePlay,
     handleRequestVideo,
-    setVideo,
     syncVideoWithServer,
   }
 }

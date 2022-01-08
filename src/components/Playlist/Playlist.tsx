@@ -15,27 +15,38 @@ const YT_VARS = {
 }
 
 const Playlist: React.FC<Props> = ({ videosUrls, className, ...rest }) => {
-
   const hasVideos = Array.isArray(videosUrls) && videosUrls.length > 0
+
+  const currentStyles: React.CSSProperties = {
+    border: '2px solid greenyellow',
+  };
 
   return (
     <div className={classnames(c.List, className)} {...rest}>
       {hasVideos && <h3>Playlist</h3>}
 
-      {videosUrls.map(v => (
-        <div className={c.Video}>
-          <ReactPlayer
-            url={v}
-            light
-            controls={false}
-            playIcon={<div/>}
-            height='100%'
-            width='100%'
-            playing={false}
-            config={YT_VARS}
-          />
-        </div>
-      ))}
+      {videosUrls.map((video, index) => {
+        const isCurrentPlaying = index === 0;
+
+        return (
+          <div
+            className={c.Video}
+            style={isCurrentPlaying ? currentStyles : {}}
+            key={index}
+          >
+            <ReactPlayer
+              url={video}
+              light
+              controls={false}
+              playIcon={<div />}
+              height='100%'
+              width='100%'
+              playing={false}
+              config={YT_VARS}
+            />
+          </div>
+        )
+      })}
     </div>
   )
 }

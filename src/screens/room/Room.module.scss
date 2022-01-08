@@ -1,7 +1,7 @@
 .Root {
   display: flex;
   flex-flow: row;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.81) 43.75%, rgba(5, 5, 5, 0.6885) 100%);
+  background: #111827;
 
   .VideoContainer {
     width: 80%;
@@ -18,8 +18,6 @@
     .List {
       margin-top: 25px;
       list-style: none;
-      padding: 0;
-      margin: 0;
     }
   }
 }
@@ -41,7 +39,7 @@
     font-size: 16px;
     line-height: 30px;
     color: #FFFFFF;
-    background-color: #238A65;
+    background-color: #2e4269;
     cursor: pointer;
   }
 }
