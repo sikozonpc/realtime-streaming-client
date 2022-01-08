@@ -2,7 +2,7 @@ import React from 'react'
 import ReactPlayer from 'react-player'
 import { RoomProps as Props } from './types'
 import { useRoom } from '../../hooks/useRoom'
-import c from "./Room.module.scss"
+import classes from "./Room.module.scss"
 import Playlist from 'components/Playlist'
 
 
@@ -13,20 +13,20 @@ const Room: React.FC<Props> = () => {
   } = useRoom()
 
   return (
-    <div className={c.Root}>
-      <div className={c.PlaylistContainer}>
-        <div className={c.VideoInput}>
+    <div className={classes.Root}>
+      <div className={classes.PlaylistContainer}>
+        <div className={classes.VideoInput}>
           <input value={videoUrl} onChange={({ target: { value } }) => setVideo(value)} />
           <button onClick={handleRequestVideo}>Add to playlist</button>
         </div>
 
         <Playlist
-          className={c.List}
+          className={classes.List}
           videosUrls={playlist}
         />
       </div>
 
-      <div className={c.VideoContainer}>
+      <div className={classes.VideoContainer}>
         <ReactPlayer
           ref={playerRef}
           playing={videoData.playing && isMediaReady}

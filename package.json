@@ -15,7 +15,7 @@
     "node-sass": "^7.0.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
-    "react-player": "^2.6.0",
+    "react-player": "^2.9.0",
     "react-router": "^5.2.0",
     "react-scripts": "5.0.0",
     "typescript": "~3.7.2"

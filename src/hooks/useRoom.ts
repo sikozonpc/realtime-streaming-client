@@ -19,7 +19,6 @@ export const useRoom = () => {
 
   const [videoData, setVideoData] = useState<VideoData>(initialVideoData)
   const [isMediaReady, setMediaReady] = useState(false)
-  const [isSeeking, setIsSeeking] = useState(false)
   const [videoUrl, setVideo] = useState("")
   const [playlist, setPlaylist] = useState<string[]>([])
   const stateRef = useRef<VideoData>()
@@ -29,20 +28,21 @@ export const useRoom = () => {
   // Hack to fix a callback react variable not updating https://stackoverflow.com/questions/57847594/react-hooks-accessing-up-to-date-state-from-within-a-callback
   stateRef.current = videoData;
 
-  const getPlaylist = async () => {
+  const getPlaylist = useCallback(async () => {
     const { data } = await axios.get<string[]>(`${API_URL}/room/${roomID}/playlist`)
     if (!data) return
 
     setPlaylist(data)
-  }
+  }, [roomID])
+
 
   useEffect(() => {
     (async () => setTimeout(getPlaylist, 1000))()
-  }, [])
+  }, [getPlaylist])
 
   const seekVideo = (durationTime: number) => {
+    console.log('seeking to', durationTime);
     if (durationTime > 0 && playerRef?.current) {
-      setIsSeeking(true)
       playerRef.current.seekTo(durationTime, 'seconds')
       return
     }
@@ -91,7 +91,6 @@ export const useRoom = () => {
       case ActionType.PLAY_VIDEO: {
         if (!res.data) return
 
-        (async () => getPlaylist())()
         syncVideoWithServer(res.data)
         seekVideo(res.data.time)
         return
@@ -99,7 +98,6 @@ export const useRoom = () => {
 
       case ActionType.PAUSE_VIDEO: {
         if (!res.data) return
-
         syncVideoWithServer(res.data)
         return
       }
@@ -110,7 +108,6 @@ export const useRoom = () => {
 
   const { sendMessage } = useWebsocket(`${WS_URL}/ws/${roomID}`, messageListener)
 
-
   const handleRequestVideo = () => {
     sendMessage({
       action: ActionType.REQUEST,
@@ -118,8 +115,6 @@ export const useRoom = () => {
         url: videoUrl,
       }
     })
-
-    console.log(videoData.url)
 
     if (!videoData.url) {
       setVideoData({
@@ -134,40 +129,32 @@ export const useRoom = () => {
       time: newVideoData.time,
       playing: newVideoData.playing,
     })
-  }, [videoData])
+  }, [])
 
   const handlePlay = () => {
-    if (!playerRef?.current) return
+    if (!playerRef?.current || videoData.playing) return;
 
-    if (!isSeeking) {
-      sendMessage({
-        action: ActionType.PLAY_VIDEO,
-        data: {
-          time: playerRef.current.getCurrentTime(),
-          url: videoData.url,
-          playing: true,
-        }
-      })
-    }
-
-    setIsSeeking(false)
+    sendMessage({
+      action: ActionType.PLAY_VIDEO,
+      data: {
+        time: playerRef.current.getCurrentTime(),
+        url: videoData.url,
+        playing: true,
+      }
+    });
   }
 
   const handlePause = () => {
-    if (!playerRef?.current) return
+    if (!playerRef?.current) return;
 
-    if (!isSeeking) {
-      sendMessage({
-        action: ActionType.PAUSE_VIDEO,
-        data: {
-          time: playerRef.current.getCurrentTime(),
-          url: videoData.url,
-          playing: false,
-        }
-      })
-    }
-
-    setIsSeeking(false)
+    console.log('SEND')
+    sendMessage({
+      action: ActionType.PAUSE_VIDEO,
+      data: {
+        url: videoData.url,
+        playing: false,
+      }
+    });
   }
 
   const handleSeek = () => {
@@ -178,7 +165,7 @@ export const useRoom = () => {
         url: videoData.url,
         playing: true,
       }
-    })
+    });
   }
 
   const handleMediaEnd = () => {
