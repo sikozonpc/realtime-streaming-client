@@ -11,4 +11,5 @@ export interface VideoData {
   url?: string,
   time?: number,
   playing?: boolean,
+  roomID?: string;
 }

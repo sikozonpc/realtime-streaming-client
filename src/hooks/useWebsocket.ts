@@ -8,6 +8,7 @@ export enum ActionType {
   END_VIDEO = "END_VIDEO",
   SYNC = "SYNC",
   REQUEST = "REQUEST",
+  HEARTH_BEAT = "HEARTH_BEAT",
 }
 
 export type Message = {

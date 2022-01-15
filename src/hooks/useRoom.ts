@@ -6,7 +6,6 @@ import { useParams } from "react-router"
 import axios from "axios"
 import { WS_URL, API_URL } from "config"
 
-
 const initialVideoData = {
   time: 0,
   url: "",
@@ -19,6 +18,7 @@ export const useRoom = () => {
   const [videoData, setVideoData] = useState<VideoData>(initialVideoData);
   const [isMediaReady, setMediaReady] = useState(false);
   const [playlist, setPlaylist] = useState<string[]>([]);
+  const [synced, setSynced] = useState(false);
   const stateRef = useRef<VideoData>();
 
   const { roomID } = useParams<{ roomID: string }>();
@@ -74,6 +74,11 @@ export const useRoom = () => {
       }
 
       case ActionType.END_VIDEO: {
+        if (!res.data || !res.data.url) return
+
+        (async () => getPlaylist())()
+        syncVideoWithServer(res.data)
+        seekVideo(res.data.time)
         return
       }
 
@@ -106,17 +111,33 @@ export const useRoom = () => {
 
   const { sendMessage } = useWebsocket(`${WS_URL}/ws/${roomID}`, messageListener)
 
+  useEffect(() => {
+    if (!roomID || synced) return;
+
+    sendMessage({ action: ActionType.SYNC, data: { roomID } });
+    setSynced(true);
+  }, [roomID, sendMessage, synced])
+
+  /* TODO: Think better on how to sync new joiners to the room
+     useInterval(() => {
+      if (videoData.playing) {
+        console.log('HERE', videoData);
+        sendMessage({
+          action: ActionType.HEARTH_BEAT,
+          data: {
+            time: playerRef?.current?.getCurrentTime() || 0,
+            url: videoData.url,
+            playing: true,
+          }
+        });
+      }
+    }, 2000); */
+
   const handleRequestVideo = (url: string) => {
-    console.log('REQUESTED');
     sendMessage({
       action: ActionType.REQUEST,
       data: { url }
-    })
-
-    // sets video to current playing, maybe this should be an event
-    if (!videoData.url) {
-      setVideoData({ url })
-    }
+    });
   }
 
   const syncVideoWithServer = useCallback((newVideoData: VideoData) => {
